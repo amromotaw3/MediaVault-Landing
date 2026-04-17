@@ -1,0 +1,216 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   MediaVault v3.0 — White Minimalist Theme
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bg: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-2: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-light: rgba(79, 70, 229, .10);
+  --accent-glow: rgba(79, 70, 229, .15);
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, .07);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, .1);
+  --t: .18s ease;
+  --sidebar-w: 230px;
+  --titlebar-h: 32px;
+  --watermark-img: url('imgs/signature_b.png');
+}
+
+/* Dark theme */
+.dark-theme {
+  --bg: #0f0f13;
+  --bg-surface: #1a1a22;
+  --bg-surface-2: #26263a;
+  --bg-card: #1a1a22;
+  --text-primary: #f0f0f2;
+  --text-secondary: #a0a0b0;
+  --text-muted: #5a5a6e;
+  --border: #2a2a3a;
+  --accent-light: rgba(79, 70, 229, .15);
+  --accent-glow: rgba(79, 70, 229, .25);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, .3);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, .4);
+  --watermark-img: url('imgs/signature_w.png');
+}
+
+
+body::before {
+  content: '';
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 240px;
+  height: 80px;
+  background: var(--watermark-img) no-repeat right bottom;
+  background-size: contain;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 1; /* Underneath cards and UI elements */
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  transition: opacity 0.5s ease;
+}
+
+body.playing-mode::before {
+  display: none !important;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-primary);
+  transition: background var(--t), color var(--t);
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Title Bar ─────────────────────────────────────────────────────────────── */
+#title-bar {
+  height: var(--titlebar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 10px;
+  -webkit-app-region: no-drag;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.title-bar-drag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  -webkit-app-region: drag;
+  flex: 1;
+  padding-left: 10px;
+  height: 100%;
+}
+
+.title-logo {
+  flex-shrink: 0;
+}
+
+.title-text {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title-bar-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.title-bar-controls button {
+  width: 36px;
+  height: 28px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--t), color var(--t);
+}
+
+.title-bar-controls button:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+#btn-close:hover {
+  background: #EF4444;
+  color: #fff;
+}
+
+/* ── Page Layout ───────────────────────────────────────────────────────────── */
+#app-body {
+  display: flex;
+  height: calc(100vh - var(--titlebar-h));
+  overflow: hidden;
+}
+
+.fullscreen-mode #title-bar {
+  display: none;
+}
+
+.fullscreen-mode #app-body {
+  height: 100vh;
+}
+
+.fullscreen-mode #sidebar {
+  display: none;
+}
+

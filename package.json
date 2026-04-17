@@ -1,0 +1,95 @@
+{
+  "name": "mediavault",
+  "version": "8.5.0",
+  "description": "MediaVault — A smart local media library, video player & downloader",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amromotaw3/MediaVault-Setup.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "prebuild": "node -e \"try { require('fs').rmSync('dist', {recursive:true, force:true}); } catch(e) {}\"",
+    "build": "electron-builder --win",
+    "build:portable": "electron-builder --win portable",
+    "release": "electron-builder --win -p always"
+  },
+  "keywords": [
+    "media",
+    "player",
+    "electron",
+    "video",
+    "tmdb",
+    "downloader"
+  ],
+  "author": "MediaVault",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.34.5"
+  },
+  "build": {
+    "appId": "com.mediavault.app",
+    "productName": "MediaVault",
+    "copyright": "Copyright © 2026 MediaVault",
+    "directories": {
+      "output": "dist"
+    },
+    "asarUnpack": [
+      "**/node_modules/youtube-dl-exec/bin/**/*"
+    ],
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "style.css",
+      "imgs/**/*",
+      "ico/**/*",
+      "src/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "imgs/appicon.ico",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "amromotaw3",
+          "repo": "MediaVault-Setup"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.17",
+    "axios": "^1.15.0",
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.8.3",
+    "ffmpeg-static": "^5.3.0",
+    "ip": "^2.0.1",
+    "mime-types": "^3.0.2",
+    "music-metadata": "^10.0.0",
+    "node-mpv": "^2.0.0-beta.2",
+    "opensubtitles-api": "^5.1.2",
+    "webtorrent": "^2.8.5",
+    "youtube-dl-exec": "^3.1.4"
+  }
+}

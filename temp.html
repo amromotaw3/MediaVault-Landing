@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaVault — Personal Media Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/renderer/css/base.css">
+  <link rel="stylesheet" href="src/renderer/css/layout.css">
+  <link rel="stylesheet" href="src/renderer/css/components.css">
+  <link rel="stylesheet" href="src/renderer/css/pages.css">
+  <link rel="stylesheet" href="src/renderer/css/player.css">
+</head>
+<body>
+
+  <!-- ═══ TITLE BAR ═══ -->
+  <header id="title-bar">
+    <div class="title-bar-drag">
+      <span class="title-text" style="font-size: 14px; font-weight: 800; opacity: 0.6; letter-spacing: 0.05em; text-transform: uppercase;">MediaVault</span>
+    </div>
+    <div class="title-bar-controls">
+      <button id="btn-global-scan" title="Refresh/Scan Library" style="display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; opacity: 0.8; transition: opacity 0.2s; font-size: 11px; font-weight: 600;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        <span style="display: none;">SCAN</span>
+      </button>
+      <button id="btn-switch-profile" title="Switch Profile" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; opacity: 0.8; transition: opacity 0.2s;">
+        <img id="current-profile-avatar" src="" style="width: 18px; height: 18px; border-radius: 50%; object-fit: cover;">
+      </button>
+      <button id="btn-theme-toggle" title="Toggle Theme"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button id="btn-minimize" title="Minimize"><svg viewBox="0 0 24 24" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button id="btn-maximize" title="Maximize"><svg viewBox="0 0 24 24" width="13" height="13"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
+      <button id="btn-close" title="Close"><svg viewBox="0 0 24 24" width="14" height="14"><line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+  </header>
+
+  <!-- ═══ APP BODY ═══ -->
+  <div id="app-body">
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div class="sidebar-group">
+        <div class="sidebar-label" data-group="library">LIBRARY</div>
+        <button class="nav-btn active" data-view="movies" id="nav-movies">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="2.5"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="8" y1="2" x2="8" y2="8"/><line x1="16" y1="2" x2="16" y2="8"/></svg>
+          <span>Movies</span><span class="nav-badge" id="badge-movies"></span>
+        </button>
+        <button class="nav-btn" data-view="shows" id="nav-shows">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 16 21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <span>TV Shows</span><span class="nav-badge" id="badge-shows"></span>
+        </button>
+        <button class="nav-btn" data-view="social" id="nav-social">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          <span>Social</span><span class="nav-badge" id="badge-social"></span>
+        </button>
+        <button class="nav-btn" data-view="music" id="nav-music">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span>Music</span><span class="nav-badge" id="badge-music"></span>
+        </button>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-label" data-group="explore">EXPLORE</div>
+        <button class="nav-btn" data-view="discover" id="nav-discover">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></polygon></svg>
+          <span>Discover</span>
+        </button>
+        <button class="nav-btn" data-view="watchlist" id="nav-watchlist">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span>Watchlist</span>
+        </button>
+
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-label" data-group="tools">TOOLS</div>
+        <button class="nav-btn" data-view="downloads" id="nav-downloads">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Downloads</span><span class="nav-badge" id="badge-downloads"></span>
+        </button>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-label" data-group="recent">RECENTLY WATCHED</div>
+        <div id="sidebar-recent" class="sidebar-dynamic-list"><div class="sidebar-empty-hint">Nothing yet</div></div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-label" data-group="pinned">PINNED</div>
+        <div id="sidebar-pinned" class="sidebar-dynamic-list"><div class="sidebar-empty-hint">Right-click to pin</div></div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-label" data-group="folders">FOLDERS</div>
+        <div id="sidebar-folders" class="sidebar-dynamic-list"></div>
+        <button class="nav-btn sidebar-add-btn" id="btn-add-folder">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Add Folder</span>
+        </button>
+      </div>
+      <div class="sidebar-group">
+        <button class="nav-btn" data-view="settings" id="nav-settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.32 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </button>
+      </div>
+
+      <div class="sidebar-spacer"></div>
+      
+      <div class="sidebar-group" style="border-top: 1px solid var(--border); padding-top: 15px;">
+        <div class="sidebar-label">PRIVACY</div>
+        <button class="nav-btn" id="btn-vault">
+          <svg id="vault-icon-locked" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <svg id="vault-icon-unlocked" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+          <span id="vault-label">Private Vault</span>
+        </button>
+      </div>
+
+    </nav>
+
+    <div class="hub-branding-footer" style="position: fixed; bottom: 15px; right: 20px; z-index: 0; pointer-events: none;">
+      <img id="sidebar-signature" src="imgs/signature_b.png" alt="Signature" style="height: 85px; width: auto; opacity: 0.8;">
+    </div>
+
+    <!-- Main Content -->
+    <main id="content">
+
+      <!-- Hub View Removed -->
+
+      <!-- Movies -->
+      <section id="view-movies" class="view active">
+        <div class="view-header"><div class="view-header-left"><h1>Movies</h1><span class="item-count" id="movies-count"></span></div>
+          <div class="view-actions"><div class="search-box"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="search-movies" placeholder="Search movies…"></div></div>
+        </div>
+        <div class="card-grid" id="movies-grid"></div>
+        <div class="empty-state" id="movies-empty"><div class="empty-icon"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="#B0B0B8" stroke-width="1.5"><rect x="8" y="8" width="48" height="48" rx="6"/><line x1="8" y1="18" x2="56" y2="18"/><polygon points="25 28 43 36 25 44" fill="#B0B0B8" stroke="none"/></svg></div><h2>No movies yet</h2><p>Add a folder in <strong>Settings</strong> or click <strong>+ Add Folder</strong>.</p></div>
+      </section>
+
+      <!-- TV Shows -->
+      <section id="view-shows" class="view">
+        <div class="view-header"><div class="view-header-left"><h1>TV Shows</h1><span class="item-count" id="shows-count"></span></div>
+          <div class="view-actions"><div class="search-box"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="search-shows" placeholder="Search shows…"></div></div>
+        </div>
+        <div class="card-grid" id="shows-grid"></div>
+        <div class="empty-state" id="shows-empty"><div class="empty-icon"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="#B0B0B8" stroke-width="1.5"><rect x="6" y="12" width="52" height="34" rx="4"/><polyline points="22 50 42 50"/><line x1="32" y1="46" x2="32" y2="50"/></svg></div><h2>No TV shows yet</h2><p>Add a folder containing sub-folders with episodes.</p></div>
+      </section>
+
+      <!-- Social Content -->
+      <!-- Social Content -->
+      <section id="view-social" class="view">
+        <div class="view-header">
+          <div class="view-header-left">
+            <h1>Social Content</h1><span class="item-count" id="social-count"></span>
+          </div>
+          <div class="view-actions">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-social" placeholder="Search videos…">
+            </div>
+          </div>
+        </div>
+        <div class="card-grid" id="social-grid"></div>
+        <div class="empty-state" id="social-empty">
+          <div class="empty-icon">
+            <svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="#B0B0B8" stroke-width="1.5"><rect x="4" y="12" width="56" height="36" rx="5"/><polygon points="26 22 46 30 26 38" fill="#B0B0B8" stroke="none"/></svg>
+          </div>
+          <h2>No Social Content discovered</h2>
+          <p>Scanned files in your Profile <strong>Social</strong> folder or completed downloads appear here.</p>
+          <button class="btn-primary" onclick="switchView('downloads')" style="margin-top:18px">Go to Downloads</button>
+        </div>
+      </section>
+      
+      <!-- Music -->
+      <section id="view-music" class="view">
+        <div class="view-header">
+           <div class="view-header-left"><h1>Music</h1><span class="item-count" id="music-count"></span></div>
+           <div class="view-actions">
+              <div class="search-box">
+                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                 <input type="text" id="search-music" placeholder="Search tracks...">
+              </div>
+           </div>
+        </div>
+        <div class="card-grid" id="music-grid"></div>
+        <div class="empty-state" id="music-empty">
+          <div class="empty-icon"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="#B0B0B8" stroke-width="1.5"><path d="M18 56a8 8 0 100-16 8 8 0 000 16zM46 48a8 8 0 100-16 8 8 0 000 16zM26 48V8L56 4v40" stroke="#B0B0B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h2>Music Library empty</h2>
+          <p>Files in your Profile <strong>Music</strong> folder appear here.</p>
+        </div>
+      </section>
+
+      <!-- Show Detail -->
+      <section id="view-show-detail" class="view">
+        <div class="view-header">
+          <button id="btn-back-shows" class="back-btn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
+          <div class="view-header-left"><h1 id="show-detail-title"></h1><span class="item-count" id="show-detail-count"></span></div>
+        </div>
+        <div id="show-detail-meta" class="show-detail-meta"></div>
+        <div id="episode-list" class="episode-list"></div>
+      </section>
+
+      <!-- Discover -->
+      <section id="view-discover" class="view">
+        <div class="view-header">
+          <div class="view-header-left">
+            <button id="btn-discover-sidebar" title="Toggle Categories">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <h1>Discover</h1>
+          </div>
+          <div class="view-actions">
+            <div class="search-box discover-search-box">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-discover" placeholder="Search movies & shows…">
+            </div>
+          </div>
+        </div>
+
+        <div class="discover-layout">
+           <aside class="discover-sidebar" id="discover-sidebar">
+              <div class="sidebar-label">CATEGORIES</div>
+              <button class="nav-btn active" data-genre="trending">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <span>Trending</span>
+              </button>
+              <button class="nav-btn" data-genre="16">
+                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                 <span>Anime</span>
+              </button>
+              <button class="nav-btn" data-genre="28">
+                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M10 10l5 2-5 2V10z"/></svg>
+                 <span>Action</span>
+              </button>
+              <button class="nav-btn" data-genre="35">
+                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                 <span>Comedy</span>
+              </button>
+              <button class="nav-btn" data-genre="18">
+                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                 <span>Drama</span>
+              </button>
+              <button class="nav-btn" data-genre="878">
+                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                 <span>Sci-Fi</span>
+              </button>
+              <button class="nav-btn" data-genre="27">
+                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                 <span>Horror</span>
+              </button>
+           </aside>
+
+           <div class="discover-main">
+              <div id="discover-results" style="display:none"><div class="card-grid" id="discover-search-grid"></div></div>
+              <div class="discover-content" id="discover-content">
+                <div class="discover-section">
+                  <div class="discover-section-header">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    <h2>Trending This Week</h2>
+                  </div>
+                  <div class="discover-row-wrapper">
+                    <button class="discover-scroll-btn prev" onclick="scrollRow(this, -1)"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+                    <div class="discover-row" id="trending-row"></div>
+                    <button class="discover-scroll-btn next" onclick="scrollRow(this, 1)"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                  </div>
+                </div>
+                
+                <div class="discover-section">
+                  <div class="discover-section-header">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="2.5"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="8" y1="2" x2="8" y2="8"/><line x1="16" y1="2" x2="16" y2="8"/></svg>
+                    <h2>Popular Movies</h2>
+                  </div>
+                  <div class="discover-row-wrapper">
+                    <button class="discover-scroll-btn prev" onclick="scrollRow(this, -1)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+                    <div class="discover-row" id="popular-movies-row"></div>
+                    <button class="discover-scroll-btn next" onclick="scrollRow(this, 1)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+                  </div>
+                </div>
+
+              </div>
+           </div>
+        </div>
+      </section>
+
+      <!-- Discover Detail (full page) -->
+      <section id="view-discover-detail" class="view">
+        <div class="dd-top-bar">
+          <button id="btn-back-discover" class="dd-back-btn" title="Go Back"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span id="dd-header-title" style="margin-left: 15px; font-weight: 700; font-size: 1.1rem; opacity: 0.9;"></span>
+        </div>
+        <div id="dd-backdrop" class="dd-backdrop"></div>
+        <div class="dd-content">
+          <div class="dd-main">
+            <div class="dd-poster-wrap"><img id="dd-poster" class="dd-poster" src="" alt=""></div>
+            <div class="dd-info">
+              <h1 id="dd-title"></h1>
+              <div id="dd-meta" class="dd-meta"></div>
+              <p id="dd-overview" class="dd-overview"></p>
+              <div id="dd-actions" class="dd-actions"></div>
+              <div id="dd-providers" style="display:flex; gap:10px; margin-top:20px; align-items:center; flex-wrap:wrap"></div>
+            </div>
+          </div>
+
+          <!-- New Split Body Layout -->
+          <div class="dd-body-split">
+            <div class="dd-body-left">
+              <div id="dd-cast" class="dd-cast-section"></div>
+              <div id="dd-seasons" class="dd-seasons-section"></div>
+            </div>
+
+            <div class="dd-body-right">
+              <div id="dd-streams" class="dd-streams-section">
+                <h3 style="margin-bottom:16px">Available Streams</h3>
+                <div id="dd-streams-list">
+                   <div style="padding:20px; color:var(--text-muted); text-align:center; background:var(--bg-surface-2); border-radius:12px;">Loading links…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Watchlist -->
+      <section id="view-watchlist" class="view">
+        <div class="view-header"><div class="view-header-left"><h1>My Watchlist</h1><span class="item-count" id="watchlist-count"></span></div></div>
+        <div class="card-grid" id="watchlist-grid"></div>
+        <div class="empty-state" id="watchlist-empty"><div class="empty-icon"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="#B0B0B8" stroke-width="1.5"><path d="M38 60l-14-10-14 10V10a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4z"/></svg></div><h2>Your watchlist is empty</h2><p>Add movies and shows from <strong>Discover</strong> to keep track of them here.</p></div>
+      </section>
+
+
+
+      <!-- Downloads -->
+      <section id="view-downloads" class="view">
+        <div class="view-header"><div class="view-header-left"><h1>Downloads</h1></div></div>
+        <div class="settings-content">
+          <div class="settings-card">
+            <h3>New Download</h3>
+            <div class="dl-form">
+              <div class="dl-type-toggle" style="display:none">
+                <button class="dl-type-btn active" id="dl-type-yt" data-type="youtube" style="flex:0.9">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  YouTube
+                </button>
+                <button class="dl-type-btn" id="dl-type-tiktok" data-type="tiktok" style="flex:0.9">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.33-.94-.45 1.39.03 2.89 1.04 4.09 1.02 1.2 2.37 2.03 3.85 2.36.88.13 1.76.14 2.64.06.08.63 0 1.27-.07 1.9-.09 1.52-.73 3.09-1.8 4.42-1.07 1.33-2.62 2.33-4.31 2.78-1.7.46-3.52.45-5.21 0-1.69-.45-3.24-1.45-4.31-2.78-1.07-1.33-1.71-2.9-1.8-4.42-.07-.63-.15-1.27-.07-1.9.88.08 1.76.07 2.64-.06 1.48-.33 2.83-1.16 3.85-2.36 1.01-1.2 1.49-2.7 1.04-4.09-1.44.59-2.89.89-4.33.94v-4.03c1.54-.17 3.12-.68 4.24-1.79 1.12-1.08 1.67-2.64 1.75-4.17z"/></svg>
+                  TikTok
+                </button>
+                <button class="dl-type-btn" id="dl-type-insta" data-type="instagram" style="flex:0.9">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg>
+                  Instagram
+                </button>
+                <button class="dl-type-btn" id="dl-type-music" data-type="music" style="flex:0.9">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                  Music
+                </button>
+                <button class="dl-type-btn" id="dl-type-direct" data-type="direct" style="flex:0.85">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Direct
+                </button>
+                <button class="dl-type-btn" id="dl-type-series" data-type="series" style="flex:0.85">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 16 21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  Series
+                </button>
+              </div>
+              <div class="dl-field"><label>Video URL</label><input type="text" id="dl-url" placeholder="YouTube, Instagram, TikTok, etc Or any direct link..."></div>
+              <div class="dl-field"><label>Name</label><input type="text" id="dl-name" placeholder="e.g. Breaking Bad"></div>
+              <div id="dl-series-fields" class="dl-row-inputs" style="display:none">
+              </div>
+              <div class="switch-container" onclick="this.querySelector('input').click()">
+                <div class="switch-label">Add to Music Library</div>
+                <label class="switch">
+                  <input type="checkbox" id="dl-music-mode">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <button id="btn-start-dl" class="btn-primary" style="margin-top:10px">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Start Download
+              </button>
+            </div>
+          </div>
+          <div class="settings-card"><h3>Active Downloads</h3><div id="dl-active-list" class="dl-list"><div class="sidebar-empty-hint">No active downloads</div></div></div>
+          <div class="settings-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><h3 style="margin:0">Download History</h3><button id="btn-clear-history" class="btn-outline" style="padding:4px 12px;font-size:11px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Clear</button></div><div id="dl-history-list" class="dl-list"><div class="sidebar-empty-hint">No downloads yet</div></div></div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="view-settings" class="view">
+        <div class="view-header"><div class="view-header-left"><h1>Settings</h1></div></div>
+        <div class="settings-content">
+          <div class="settings-card">
+            <div id="smart-folder-info" style="margin-bottom: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.2);">
+              <h4 style="margin: 0 0 8px 0; color: var(--accent);">Smart Storage Active</h4>
+              <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5;">MediaVault is automatically managing your folders in <strong>Videos/MediaVault</strong>. Place your files there to see them appear in the app.</p>
+            </div>
+
+            <!-- Legacy/Manual Folders (Hidden) -->
+            <div style="display: none;">
+              <h3>Media Library Folders</h3>
+              <div id="settings-folders-list" class="settings-folders-list"></div>
+              <div class="folder-picker"><input type="text" id="folder-path" readonly placeholder="No folder selected…"><button id="btn-select-folder" class="btn-outline">Browse…</button></div>
+              <p class="setting-hint">Select the root folders where your movies and TV shows are stored.</p>
+              
+              <h3 style="margin-top:24px">YouTube Videos Folder</h3>
+              <div class="folder-picker">
+                <input type="text" id="yt-folder-path" readonly placeholder="No YouTube folder selected…">
+                <button id="btn-select-yt-folder" class="btn-outline">Browse…</button>
+              </div>
+              <p class="setting-hint">Videos in this folder will appear in the <strong>YouTube</strong> section.</p>
+            </div>
+
+            <div style="margin-top:18px;"><button id="btn-rescan" class="btn-primary"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Scan Library</button></div>
+
+
+            <!-- TMDB API Key Management -->
+            <h3 style="margin-top:24px">TMDB API Key</h3>
+            <div class="dl-form">
+              <div class="dl-field">
+                <label>API Key (Masked)</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="password" id="tmdb-key-masked" readonly style="flex: 1;" placeholder="••••••••••••">
+                  <button id="btn-copy-tmdb-key" class="btn-primary-sm" title="API key is never shown in plain text">Copy</button>
+                </div>
+              </div>
+              <div class="dl-field" style="margin-top: 12px;">
+                <label>Update TMDB API Key</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="password" id="tmdb-key-input" placeholder="Enter new API key to update" style="flex: 1;">
+                  <button id="btn-verify-tmdb-key" class="btn-primary-sm">Test</button>
+                </div>
+              </div>
+              <div id="tmdb-key-status" style="margin-top: 8px; font-size: 12px; color: var(--text-muted); display: none;"></div>
+              <button id="btn-update-tmdb-key" class="btn-primary-sm" style="margin-top:12px">Update Key</button>
+            </div>
+            <p class="setting-hint">Get your free TMDB API key from <a href="#" onclick="window.api.openExternal('https://www.themoviedb.org/settings/api'); return false;" style="color: var(--accent); cursor: pointer;">themoviedb.org/settings/api</a></p>
+            
+            <h3 style="margin-top:24px">Scrapers Config</h3>
+            <div class="dl-form">
+              <div class="dl-field"><label>Torrentio API</label><input type="text" id="config-torrentio" placeholder="https://torrentio.strem.fun"></div>
+              <button id="btn-save-config" class="btn-primary-sm" style="margin-top:8px">Apply Changes</button>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>App Interface</h3>
+            <p class="setting-hint" style="margin-bottom: 12px">Adjust the size of the user interface (Zoom).</p>
+            <div style="display:flex; gap: 8px;">
+              <button id="btn-zoom-out" class="btn-outline">Zoom Out &nbsp;-</button>
+              <button id="btn-zoom-reset" class="btn-outline" style="min-width:90px">Reset (100%)</button>
+              <button id="btn-zoom-in" class="btn-outline">Zoom In &nbsp;+</button>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>About MediaVault</h3>
+            <p class="about-text" style="font-weight: 700; color: var(--accent); margin-bottom: 8px;">Built with passion by Amro Motawa</p>
+            <p class="about-text">The ultimate cinematic experience. Your personal hub for high-fidelity media playback and smart curation.</p>
+            <div style="margin-top: 16px;">
+            <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+              <button id="btn-clear-cache" class="btn-outline">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Clear TMDB Cache
+              </button>
+              <button id="btn-factory-reset" class="btn-outline" style="color:#ff5555; border-color: rgba(255,85,85,0.2);">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                Factory Reset (Clear All Data)
+              </button>
+            </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Player -->
+      <section id="view-player" class="view">
+        <div id="player-wrapper">
+          <div id="player-container">
+            <video id="video-element" preload="metadata"></video>
+            <div id="music-poster-container">
+               <div id="music-poster-bg" class="music-poster-bg"></div>
+               <div class="music-poster-frame">
+                 <img id="music-poster-img" src="" onerror="this.src='https://api.dicebear.com/7.x/shapes/svg?seed=music'; this.style.opacity='0.5';">
+               </div>
+            </div>
+            <div class="player-gradient-top"></div>
+            <div class="player-gradient-bottom"></div>
+            <div id="player-topbar" class="player-topbar">
+              <button id="btn-back-player" class="player-ghost-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <div class="player-title-block"><span id="player-show-name" class="player-show-name"></span><span id="player-title" class="player-ep-title"></span></div>
+              
+              <div class="player-top-center" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                <div id="player-music-toggle" class="music-toggle-pills" style="display:none">
+                  <button class="pill-btn active" id="btn-player-art">Art</button>
+                  <button class="pill-btn" id="btn-player-video">Video</button>
+                </div>
+              </div>
+
+              <button id="btn-toggle-playlist" class="player-ghost-btn" title="Episode List"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg></button>
+            </div>
+            <div id="player-controls" class="player-controls">
+              <div class="seek-row"><div class="seek-bar-wrap"><div id="seek-buffered" class="seek-buffered"></div><div id="seek-filled" class="seek-filled"></div><input type="range" id="seek-bar" class="seek-bar" value="0" min="0" max="1000" step="1"></div><span id="time-display" class="time-display">0:00 / 0:00</span></div>
+              <div class="controls-row">
+                <div class="controls-left">
+                  <button id="btn-play-pause" class="ctrl-btn large" title="Play/Pause"><svg id="icon-play" viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><svg id="icon-pause" viewBox="0 0 24 24" width="30" height="30" fill="currentColor" style="display:none"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg></button>
+                  <button id="btn-skip-back" class="ctrl-btn" title="Back 10s"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg><span class="skip-label">10</span></button>
+                  <button id="btn-skip-forward" class="ctrl-btn" title="Forward 10s"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><span class="skip-label">10</span></button>
+                  <div class="volume-group"><button id="btn-mute" class="ctrl-btn" title="Mute"><svg id="icon-vol" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg><svg id="icon-mute" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button><input type="range" id="volume-bar" class="volume-bar" value="100" min="0" max="100" step="1"></div>
+                  <button id="btn-eq" class="ctrl-btn" title="Audio Equalizer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></button>
+                  <button id="btn-fix-audio" class="ctrl-btn" title="Fix Audio (Transcode)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></button>
+                </div>
+                <div class="controls-right">
+                  <button id="btn-external-player" class="ctrl-btn" title="Open in VLC / External Player"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+                  <button id="btn-pip" class="ctrl-btn" title="Picture-in-Picture"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><rect x="12" y="11" width="10" height="7" rx="1"/></svg></button>
+                  <button id="btn-audio-tracks" class="ctrl-btn" title="Audio & Subtitle Tracks"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg></button>
+                  <button id="btn-subtitle" class="ctrl-btn subtitle-off" title="Toggle Subtitles"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="5" y1="11" x2="11" y2="11"/><line x1="13" y1="11" x2="19" y2="11"/><line x1="5" y1="15" x2="8" y2="15"/><line x1="10" y1="15" x2="19" y2="15"/></svg></button>
+                  <button id="btn-subtitle-os" class="ctrl-btn" title="Search Online Subtitles"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button>
+                  <button id="btn-subtitle-manual" class="ctrl-btn" title="Load Local Subtitle File"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button>
+                  <button id="btn-fullscreen" class="ctrl-btn" title="Fullscreen"><svg id="icon-expand" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><svg id="icon-shrink" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div id="player-loading" class="player-loading" style="display:none">
+              <div class="player-loading-content">
+                <div class="spinner-ring"></div>
+                <div id="player-progress-text" class="player-progress-text">Initializing...</div>
+                <div id="player-speed-text" class="player-speed-text"></div>
+              </div>
+            </div>
+            <div id="auto-next-overlay" class="auto-next-overlay" style="display:none"><div class="auto-next-card"><div class="auto-next-label">Up next</div><div class="auto-next-title" id="auto-next-title"></div><div class="auto-next-countdown-bar"><div id="auto-next-bar-fill" class="auto-next-bar-fill"></div></div><div class="auto-next-actions"><button id="btn-play-now" class="btn-primary-sm">Play Now</button><button id="btn-cancel-next" class="btn-ghost-sm">Cancel</button></div></div></div>
+            <div id="sleep-overlay" class="sleep-overlay" style="display:none">
+              <div id="sleep-bg" class="sleep-bg"></div>
+              <div class="sleep-content">
+                <div class="sleep-text">
+                  <div class="sleep-show" id="sleep-show"></div>
+                  <div class="sleep-title" id="sleep-title"></div>
+                  <div id="sleep-meta" style="display:flex;gap:12px;margin:8px 0;font-size:14px;color:rgba(255,255,255,0.7)"></div>
+                  <div class="sleep-desc" id="sleep-desc" style="max-width:600px;line-height:1.6;font-size:16px;color:rgba(255,255,255,0.9);margin-top:12px"></div>
+                </div>
+                <div class="sleep-poster-wrap">
+                  <img id="sleep-poster" class="sleep-poster" src="" style="display:none">
+                </div>
+              </div>
+              <!-- Clock Removed -->
+            </div>
+          </div>
+          <div id="player-side-panel" class="player-side-panel">
+            <div class="side-panel-header">
+              <span id="panel-show-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">Season 1</span>
+              <div style="display:flex; gap: 4px">
+                <button id="btn-fix-season" class="panel-close-btn" title="Fix TMDB Season Map"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button id="btn-close-panel" class="panel-close-btn" title="Close Panel"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+              </div>
+            </div>
+            <div id="panel-episode-list" class="panel-episode-list"></div>
+          </div>
+          <div id="player-eq-panel" class="player-side-panel">
+            <div class="side-panel-header">
+              <span>Audio Equalizer</span>
+              <button id="btn-close-eq" class="panel-close-btn" title="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div style="padding: 18px">
+              <select id="eq-preset" class="eq-dropdown">
+                <option value="flat">Flat (Default)</option>
+                <option value="movie">Movie Mode</option>
+                <option value="voice">Voice Clarity</option>
+                <option value="bass">Bass Boost</option>
+                <option value="custom">Custom</option>
+              </select>
+              
+              <div class="eq-sliders-container">
+                <div class="eq-band">
+                  <span class="eq-label">60</span>
+                  <input type="range" class="eq-slider" data-band="0" min="-12" max="12" step="1" value="0">
+                  <span class="eq-val">0</span>
+                </div>
+                <div class="eq-band">
+                  <span class="eq-label">230</span>
+                  <input type="range" class="eq-slider" data-band="1" min="-12" max="12" step="1" value="0">
+                  <span class="eq-val">0</span>
+                </div>
+                <div class="eq-band">
+                  <span class="eq-label">910</span>
+                  <input type="range" class="eq-slider" data-band="2" min="-12" max="12" step="1" value="0">
+                  <span class="eq-val">0</span>
+                </div>
+                <div class="eq-band">
+                  <span class="eq-label">3.6k</span>
+                  <input type="range" class="eq-slider" data-band="3" min="-12" max="12" step="1" value="0">
+                  <span class="eq-val">0</span>
+                </div>
+                <div class="eq-band">
+                  <span class="eq-label">14k</span>
+                  <input type="range" class="eq-slider" data-band="4" min="-12" max="12" step="1" value="0">
+                  <span class="eq-val">0</span>
+                </div>
+              </div>
+              <div style="text-align:center; margin-top:20px;">
+                  <button id="btn-eq-reset" class="btn-outline" style="font-size:11px; padding: 4px 12px; background:transparent">Reset Custom</button>
+               </div>
+            </div>
+          </div>
+
+          <div id="player-subs-panel" class="player-side-panel">
+            <div class="side-panel-header">
+              <span>Online Subtitles</span>
+              <button id="btn-close-subs" class="panel-close-btn" title="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div style="padding: 15px; border-bottom: 1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="os-search-input" placeholder="Search title..." style="width:100%">
+              </div>
+              <div class="lang-segmented-control" id="os-lang-control">
+                <button class="lang-tab" data-lang="ar">Arabic</button>
+                <button class="lang-tab" data-lang="en">English</button>
+                <button class="lang-tab active" data-lang="all">All</button>
+              </div>
+            </div>
+            <div id="subs-loading" class="subs-loading" style="display:none"><div class="spinner-ring" style="width:30px;height:30px"></div><p>Searching OpenSubtitles...</p></div>
+            <div id="subs-results-list" class="subs-results-list"></div>
+          </div>
+          
+          <div id="player-tracks-panel" class="player-side-panel">
+            <div class="side-panel-header">
+              <span>Audio & Subtitles</span>
+              <button id="btn-close-tracks" class="panel-close-btn" title="Close"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div style="padding:15px; display:flex; flex-direction:column; gap:20px; overflow-y:auto; flex:1;">
+               <div>
+                 <div style="color:var(--text-muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Audio Tracks</div>
+                 <div id="audio-tracks-list" style="display:flex; flex-direction:column; gap:5px;"></div>
+               </div>
+               <div>
+                 <div style="color:var(--text-muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:700;">Internal Subtitles</div>
+                 <div id="internal-subs-list" style="display:flex; flex-direction:column; gap:5px;"></div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Mini Player -->
+  <div id="mini-player" class="mini-player" style="display:none">
+    <div class="mp-info" id="mp-info-click"><div id="mp-title" class="mp-title"></div><div id="mp-meta" class="mp-meta"></div></div>
+    <div class="mp-controls">
+      <button id="mp-btn-play-pause" class="mp-btn"><svg id="mp-icon-play" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><svg id="mp-icon-pause" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:none"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg></button>
+      <button id="mp-btn-close" class="mp-btn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Context Menu -->
+  <div id="context-menu" class="context-menu" style="display:none">
+    <button class="ctx-item" id="ctx-play"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Play</button>
+    <button class="ctx-item" id="ctx-pin"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> <span id="ctx-pin-label">Pin</span></button>
+    <div class="ctx-divider"></div>
+    <button class="ctx-item" id="ctx-tmdb-search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Search TMDB</button>
+    <button class="ctx-item" id="ctx-cover"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Upload Cover</button>
+    <button class="ctx-item" id="ctx-rename"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Rename</button>
+    <div class="ctx-divider"></div>
+    <button class="ctx-item" id="ctx-lock">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      <span id="ctx-lock-label">Lock Item</span>
+    </button>
+  </div>
+
+
+  <!-- TMDB Search Modal -->
+  <div id="tmdb-modal" class="modal-overlay" style="display:none">
+    <div class="modal" style="width:550px;max-height:80vh;display:flex;flex-direction:column">
+      <h2>Search TMDB</h2>
+      <div class="search-box" style="margin-bottom:14px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="tmdb-search-input" placeholder="Search movies & shows…" style="width:100%"></div>
+      <div id="tmdb-search-results" style="flex:1;overflow-y:auto;margin-bottom:14px"></div>
+      <div class="modal-actions"><button id="tmdb-search-cancel" class="btn-outline">Cancel</button></div>
+    </div>
+  </div>
+
+  <!-- Rename Modal -->
+  <div id="rename-modal" class="modal-overlay" style="display:none">
+    <div class="modal"><h2>Rename File</h2><input type="text" id="rename-input" placeholder="New filename…"><div class="modal-actions"><button id="rename-cancel" class="btn-outline">Cancel</button><button id="rename-confirm" class="btn-primary">Rename</button></div></div>
+  </div>
+
+  <!-- Vault Modal -->
+  <div id="vault-modal" class="modal-overlay" style="display:none">
+    <div class="modal" style="width:340px; text-align:center">
+      <div style="margin-bottom:20px">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h2 id="vault-modal-title">Private Vault</h2>
+      <p id="vault-modal-desc" style="color:var(--text-muted); font-size:13px; margin-bottom:20px">Enter your 4-digit PIN to access locked content.</p>
+      <div style="display:flex; justify-content:center; gap:10px; margin-bottom:25px" id="pin-inputs">
+        <input type="password" class="pin-digit" maxlength="1" pattern="\d*">
+        <input type="password" class="pin-digit" maxlength="1" pattern="\d*">
+        <input type="password" class="pin-digit" maxlength="1" pattern="\d*">
+        <input type="password" class="pin-digit" maxlength="1" pattern="\d*">
+      </div>
+      <div class="modal-actions" style="justify-content:center">
+        <button id="vault-cancel" class="btn-outline">Cancel</button>
+        <button id="vault-confirm" class="btn-primary" style="min-width:100px">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- ═══ WELCOME / INTRO SCREEN ═══ -->
+  <div id="intro-screen" class="modal-overlay" style="display: none; z-index: 30000;">
+    <div class="intro-glass-card">
+      <div class="intro-logo">MediaVault</div>
+      <h1 style="font-size: 2.8rem; font-weight: 800; margin-bottom: 20px; line-height: 1.2; color: #FFFFFF;">Welcome to the next level</h1>
+      <p style="font-size: 1.1rem; opacity: 0.6; margin-bottom: 40px; line-height: 1.6;">Experience your media like never before. Private, organized, and beautifully crafted just for you.</p>
+      <button id="btn-intro-start" class="btn-primary" style="padding: 16px 45px; font-size: 1.1rem; border-radius: 50px; font-weight: 700;">Get Started</button>
+    </div>
+  </div>
+
+  <!-- ═══ PROFILE PICKER (STARTUP) ═══ -->
+  <div id="profile-picker" class="modal-overlay" style="display: none; z-index: 30001; background: #000; flex-direction: column; align-items: center; justify-content: center; gap: 40px;">
+    <h1 style="font-size: 3.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; color: #FFFFFF;">Who's watching?</h1>
+    <div id="profile-list" style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;">
+      <!-- Profiles injected here -->
+      <div id="btn-add-profile" class="profile-card add-card" style="display: flex; flex-direction: column; align-items: center; gap: 15px; cursor: pointer;">
+        <div class="profile-avatar-box" style="width: 150px; height: 150px; border-radius: 50%; background: #1a1a1a; display: flex; align-items: center; justify-content: center; border: 2px dashed #333; transition: all 0.3s;">
+          <svg viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="#666" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <span style="font-size: 1.2rem; font-weight: 500; color: #666;">Add Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW PROFILE MODAL ═══ -->
+  <div id="profile-modal" class="modal-overlay" style="display: none; z-index: 30002; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);">
+    <div class="modal-content" style="background: var(--bg-surface-1); width: 450px; padding: 40px; border-radius: 24px; text-align: center; position: relative; z-index: 30003;">
+      <h2 style="margin-bottom: 10px; color: #FFFFFF;">Create Profile</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 25px;">Enter a name and choose an avatar</p>
+      
+      <div id="avatar-selector" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+        <!-- Avatars injected here -->
+        <div id="btn-upload-avatar" class="avatar-opt upload-opt" title="Upload Image">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+      </div>
+
+      <input type="text" id="profile-name-input" placeholder="What's your name?" style="width: 100%; background: var(--bg-surface-2); border: 2px solid var(--border); border-radius: 12px; padding: 15px; font-size: 1rem; color: #fff; margin-bottom: 20px; outline: none; transition: border-color 0.3s;">
+      
+      <div class="modal-actions" style="display: flex; gap: 12px;">
+        <button id="profile-cancel" class="btn-secondary" style="flex: 1; padding: 12px; border-radius: 12px;">Cancel</button>
+        <button id="profile-confirm" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 12px;">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
