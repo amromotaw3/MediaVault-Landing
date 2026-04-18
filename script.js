@@ -41,4 +41,35 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+  // ─── Auto-Versioning Logic ────────────────────────────────────────────────
+  const setupAutoVersioning = async () => {
+    try {
+      // Fetch package.json from the root
+      const response = await fetch('./package.json');
+      if (!response.ok) return;
+      const data = await response.json();
+      const version = data.version;
+
+      // Update Badge
+      const badge = document.getElementById('app-version-badge');
+      if (badge) {
+        badge.textContent = `MEDIAVAULT V${version} IS HERE`;
+      }
+
+      // Update Download Links
+      const downloadLinks = document.querySelectorAll('.download-link');
+      downloadLinks.forEach(link => {
+        const platform = link.id === 'download-win' ? 'Windows' : '';
+        if (platform === 'Windows') {
+          link.href = `https://github.com/amromotaw3/MediaVault-Setup/releases/download/v${version}/MediaVault-Setup-${version}.exe`;
+        }
+      });
+      
+      console.log(`[Auto-Version] Site updated to v${version}`);
+    } catch (err) {
+      console.error('[Auto-Version] Failed to fetch version:', err);
+    }
+  };
+
+  setupAutoVersioning();
 });
