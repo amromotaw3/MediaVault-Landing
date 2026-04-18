@@ -41,33 +41,42 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
-  // ─── Auto-Versioning Logic ────────────────────────────────────────────────
+  // ─── Auto-Versioning Logic (GitHub API) ───────────────────────────────────
   const setupAutoVersioning = async () => {
     try {
-      // Fetch package.json from the root
-      const response = await fetch('./package.json');
+      // Fetch the latest release info from GitHub
+      const repo = 'amromotaw3/MediaVault-Setup';
+      const response = await fetch(`https://api.github.com/repos/${repo}/releases/latest`);
       if (!response.ok) return;
-      const data = await response.json();
-      const version = data.version;
+      const release = await response.json();
+      
+      // tag_name is usually "v8.5.1", we can extract the number or use it as is
+      const version = release.tag_name.replace(/^v/, ''); 
 
-      // Update Badge
+      // 1. Update Version Badge
       const badge = document.getElementById('app-version-badge');
       if (badge) {
         badge.textContent = `MEDIAVAULT V${version} IS HERE`;
       }
 
-      // Update Download Links
+      // 2. Update Download Links (Search for the EXE in assets)
+      const winAsset = release.assets.find(a => a.name.endsWith('.exe') && !a.name.includes('Setup'));
+      const setupAsset = release.assets.find(a => a.name.endsWith('.exe') && a.name.includes('Setup'));
+      
       const downloadLinks = document.querySelectorAll('.download-link');
       downloadLinks.forEach(link => {
-        const platform = link.id === 'download-win' ? 'Windows' : '';
-        if (platform === 'Windows') {
-          link.href = `https://github.com/amromotaw3/MediaVault-Setup/releases/download/v${version}/MediaVault-Setup-${version}.exe`;
-        }
+        // Default fallback if assets aren't found specifically
+        let downloadUrl = `https://github.com/${repo}/releases/download/v${version}/MediaVault-Setup-${version}.exe`;
+        
+        // Use the actual direct URL from GitHub Assets if available
+        if (setupAsset) downloadUrl = setupAsset.browser_download_url;
+        
+        link.href = downloadUrl;
       });
       
-      console.log(`[Auto-Version] Site updated to v${version}`);
+      console.log(`[Auto-Version] Site synced with GitHub Release v${version}`);
     } catch (err) {
-      console.error('[Auto-Version] Failed to fetch version:', err);
+      console.error('[Auto-Version] Failed to sync with GitHub:', err);
     }
   };
 
