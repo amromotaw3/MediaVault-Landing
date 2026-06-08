@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediaVault — The Next-Gen Personal Media Hub</title>
-  <meta name="description" content="MediaVault is the ultimate cinematic experience. Automatically index, curate, and stream your movies, music, and social content with a premium, high-fidelity interface. Version 12.3.5 includes mobile stability and UI refinements.">
+  <title>MediaVault — Own Your Stream</title>
+  <meta name="description" content="MediaVault is the ultimate personal media hub. Stream torrents, discover trending content, manage your local library, and watch anime — all in one premium interface. Download free for Windows and Android.">
   <meta name="robots" content="index, follow">
   
   <!-- Fonts -->
@@ -16,14 +16,33 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/x-icon" href="imgs/favicon.ico">
   
   <!-- Styles -->
   <link rel="stylesheet" href="style.css">
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-
+  <!-- Navigation Bar -->
+  <nav class="main-nav">
+    <div class="container nav-container">
+      <div class="nav-brand" id="nav-brand" style="cursor: pointer;">
+        <img src="imgs/appicon.png" alt="MediaVault Logo" class="nav-logo">
+        <span>MediaVault</span>
+      </div>
+      <div class="nav-links" id="nav-links">
+        <a href="#hero">Home</a>
+        <a href="#features">Features</a>
+        <a href="#addons-section" id="nav-addons-link" style="display: none;">Addons</a>
+        <a href="#admin-panel-section" id="nav-admin-link" style="display: none;">Admin Panel</a>
+      </div>
+      <div class="nav-auth" id="nav-auth-container">
+        <button class="btn-nav-primary" id="btn-login-nav">Sign In</button>
+      </div>
+    </div>
+  </nav>
 
   <!-- Background Mesh -->
   <div class="background-canvas">
@@ -37,20 +56,20 @@
     <div class="container hero-container">
       <div class="hero-content">
         <div class="app-badge">
-          <img src="appicon.png" alt="MediaVault Logo" class="badge-icon">
-          <span id="app-version-badge">MEDIAVAULT V12.3.5 IS HERE</span>
+          <img src="imgs/appicon.png" alt="MediaVault Logo" class="badge-icon">
+          <span id="app-version-badge">MEDIAVAULT V12.4.0 IS HERE</span>
         </div>
-        <h1 class="hero-title">Elevate Your<br>Media Experience.</h1>
+        <h1 class="hero-title">Own Your<br>Stream.</h1>
         <p class="hero-subtitle">
-          The ultimate high-fidelity cinematic hub. Index your local library, watch trending global content, and enjoy studio-grade audio visualizations in a sleek glassmorphism interface.
+          The ultimate personal media hub. Stream torrents, discover trending content, manage your local library, and watch anime — all in one premium interface.
         </p>
         
         <div class="hero-actions">
-          <a href="https://github.com/amromotaw3/MediaVault-Landing/releases/download/v12.3.5/MediaVault-Setup-12.3.5.exe" class="btn btn-primary download-link" id="download-win">
+          <a href="https://github.com/amromotaw3/MediaVault-Landing/releases/download/v12.4.0/MediaVault-Setup-12.4.0.exe" class="btn btn-primary download-link" id="download-win">
             <i class="fa-brands fa-windows"></i>
             Download for Windows
           </a>
-          <a href="https://github.com/amromotaw3/MediaVault-Landing/releases/download/v12.3.5/MediaVault-12.3.5.apk" class="btn btn-secondary download-link" id="download-android">
+          <a href="https://github.com/amromotaw3/MediaVault-Landing/releases/download/v12.4.0/MediaVault-12.4.0.apk" class="btn btn-secondary download-link" id="download-android">
             <i class="fa-brands fa-android"></i>
             Download for Android
           </a>
@@ -58,10 +77,26 @@
       </div>
       
       <div class="hero-visual">
-        <div class="hero-img-wrap">
-          <div class="laptop-frame">
-            <img src="image.png" alt="MediaVault Desktop Mockup" class="pc-mockup">
+        <div class="dashboard-showcase">
+          <div class="showcase-glow"></div>
+          
+          <div class="showcase-screen" id="showcase-screen">
+            <!-- Desktop Screen View -->
+            <div class="screen-view active" id="view-desktop">
+              <img src="imgs/addon_showcase.png" id="app-screenshot" alt="MediaVault Desktop Interface" class="app-screenshot">
+              <div class="screen-reflection"></div>
+            </div>
+            
+            <!-- Mobile Screen View -->
+            <div class="screen-view" id="view-mobile" style="display: none;">
+              <div class="mobile-frame-container">
+                <img src="imgs/mobile_image.png" alt="MediaVault Mobile Interface" class="mobile-screenshot">
+                <div class="screen-reflection"></div>
+              </div>
+            </div>
           </div>
+          
+          <!-- decorative visuals removed to simplify hero -->
         </div>
       </div>
     </div>
@@ -71,76 +106,88 @@
   <section class="features" id="features">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">Features Built for Connoisseurs.</h2>
-        <p class="section-desc">MediaVault combines powerful tools with a premium aesthetic to make your content come alive.</p>
+        <h2 class="section-title">Everything You Need. One App.</h2>
+        <p class="section-desc">MediaVault combines powerful streaming, local media management, and a premium aesthetic into a single experience.</p>
       </div>
 
       <div class="features-grid">
         
         <!-- Feature 1 -->
         <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-clapperboard"></i></div>
-          <h3 class="feature-title">Universal Library</h3>
-          <p class="feature-text">Access a massive collection of the latest movies and TV series from global sources, all in one place.</p>
+          <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+          <h3 class="feature-title">MediaVault Addons Client</h3>
+          <p class="feature-text">Integrated MediaVault addon engine supporting community extensions to resolve streaming links and media sources.</p>
           <ul class="feature-list">
-            <li>4K Ultra-HD Support</li>
-            <li>Daily Content Updates</li>
-            <li>Custom Curated Watchlists</li>
+            <li>Community Addon Support</li>
+            <li>Direct Link Resolver</li>
+            <li>Modular Streaming Sources</li>
           </ul>
         </div>
 
         <!-- Feature 2 -->
         <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
-          <h3 class="feature-title">Community Extensions</h3>
-          <p class="feature-text">Unlock limitless possibilities with community-made add-ons that grant access to endless content sources.</p>
+          <div class="feature-icon"><i class="fa-solid fa-folder-open"></i></div>
+          <h3 class="feature-title">Local Media Scanner</h3>
+          <p class="feature-text">Scans your local hard drives for media folders, groups series seasons, and auto-resolves rich posters and metadata from TMDB.</p>
           <ul class="feature-list">
-            <li>One-Click Installation</li>
-            <li>Active Developer Support</li>
-            <li>Modular Source Management</li>
+            <li>TMDB Metadata Fetching</li>
+            <li>Auto Series Grouping</li>
+            <li>Offline Poster Cache</li>
           </ul>
         </div>
 
         <!-- Feature 3 -->
         <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-folder-open"></i></div>
-          <h3 class="feature-title">Smart Local Indexing</h3>
-          <p class="feature-text">Transform your local folders into a cinematic hub with posters, backdrops, and precise metadata fetched automatically.</p>
+          <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+          <h3 class="feature-title">Private Media Vault</h3>
+          <p class="feature-text">Secure and hide your private media files, movies, or shows behind a 4-digit PIN lock inside the application.</p>
           <ul class="feature-list">
-            <li>Auto-Metadata Tagging</li>
-            <li>Smart Series Grouping</li>
-            <li>Premium Grid Layouts</li>
+            <li>PIN Lock Security</li>
+            <li>Hidden Media Catalog</li>
+            <li>Secure Local Storage</li>
           </ul>
         </div>
 
         <!-- Feature 4 -->
         <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-book-open"></i></div>
-          <h3 class="feature-title">Manga & Anime Hub</h3>
-          <p class="feature-text">Experience a dedicated world for Manga and Anime, featuring a high-performance reader and episode tracking.</p>
+          <div class="feature-icon"><i class="fa-solid fa-arrows-rotate"></i></div>
+          <h3 class="feature-title">Trakt.tv Sync</h3>
+          <p class="feature-text">Automatically synchronizes your watchlist, watch history, ratings, and episode progress with your Trakt.tv account.</p>
           <ul class="feature-list">
-            <li>Advanced Manga Reader</li>
-            <li>Episode Progress Tracking</li>
-            <li>Massive Anime Database</li>
+            <li>Automatic Progress Sync</li>
+            <li>Multi-device Watchlists</li>
+            <li>Dynamic Trakt Scrobbling</li>
           </ul>
         </div>
 
         <!-- Feature 5 -->
         <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <h3 class="feature-title">Privacy & Performance</h3>
-          <p class="feature-text">High-speed performance with complete data security, designed to run smoothly on all your devices.</p>
+          <div class="feature-icon"><i class="fa-solid fa-download"></i></div>
+          <h3 class="feature-title">Offline Downloads</h3>
+          <p class="feature-text">Integrated downloads manager to download resolved streams and torrent files directly to local storage for offline access.</p>
           <ul class="feature-list">
-            <li>Local Data Encryption</li>
-            <li>Low Resource Consumption</li>
-            <li>Ultra-Responsive Interface</li>
+            <li>Offline Playback Support</li>
+            <li>Background Download Engine</li>
+            <li>Custom Storage Paths</li>
+          </ul>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-closed-captioning"></i></div>
+          <h3 class="feature-title">Subtitles & Music Player</h3>
+          <p class="feature-text">Integrated SubDL search for multilingual subtitles (RTL/Arabic), plus a music player featuring a dynamic audio visualizer.</p>
+          <ul class="feature-list">
+            <li>SubDL Subtitle Finder</li>
+            <li>RTL & Custom Subtitle Styles</li>
+            <li>Interactive Audio Visualizer</li>
           </ul>
         </div>
 
         <!-- CTA Card -->
         <div class="feature-card" style="background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1)); border: 1px solid var(--accent);">
           <h3 class="feature-title">Ready to Dive In?</h3>
-          <p class="feature-text">Start your cinematic journey today with MediaVault. Completely free and open for customization.</p>
+          <p class="feature-text">Start streaming today with MediaVault. Completely free and open for customization.</p>
           <div style="margin-top: 30px;">
             <a href="#hero" class="btn btn-primary" style="width: 100%; justify-content: center;">Get Started Now</a>
           </div>
@@ -150,10 +197,209 @@
     </div>
   </section>
 
+  <!-- Addons Section (Only visible when logged in) -->
+  <section class="addons-section" id="addons-section" style="display: none;">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">MediaVault Addons</h2>
+        <p class="section-desc">Unlock unlimited content sources with these compatible addons. Click install to copy or load them directly into your MediaVault app.</p>
+      </div>
+      <div class="addons-grid" id="addons-grid">
+        <!-- Addons will be loaded dynamically here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Panel Section (Only visible to admins) -->
+  <section class="admin-panel" id="admin-panel-section" style="display: none;">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Admin Control Panel</h2>
+        <p class="section-desc">Manage all users, edit subscription validity, max active devices, ban accounts, and manage MediaVault Addons.</p>
+      </div>
+      
+      <div class="admin-container">
+        <div class="admin-sidebar">
+          <button class="admin-nav-btn active" data-tab="users-tab"><i class="fa-solid fa-users"></i> Users & Subscriptions</button>
+          <button class="admin-nav-btn" data-tab="addons-tab"><i class="fa-solid fa-puzzle-piece"></i> Manage Addons</button>
+        </div>
+        
+        <div class="admin-content">
+          <!-- Users Tab -->
+          <div class="admin-tab-content active" id="users-tab">
+            <div class="admin-card">
+              <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
+                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff;">Registered Users</h3>
+                <span class="admin-badge" id="user-count" style="background: rgba(99, 102, 241, 0.2); color: var(--accent); padding: 4px 12px; border-radius: 100px; font-size: 13px; font-weight: 700;">0 Users</span>
+              </div>
+              <div class="table-responsive">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Max Devices</th>
+                      <th>Subscription Expiry</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="users-table-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Addons Tab -->
+          <div class="admin-tab-content" id="addons-tab">
+            <div class="admin-grid-layout" style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 30px;">
+              <!-- Add Addon Form -->
+              <div class="admin-card">
+                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">Add MediaVault Addon</h3>
+                <form id="add-addon-form">
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="addon-manifest-url" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Manifest JSON URL</label>
+                    <div style="display: flex; gap: 10px;">
+                      <input type="url" id="addon-manifest-url" class="form-control" placeholder="https://addon-domain/manifest.json" required style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                      <button type="button" class="btn btn-secondary" id="btn-fetch-addon" style="padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;">Fetch</button>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="addon-name" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Addon Name</label>
+                    <input type="text" id="addon-name" class="form-control" placeholder="Fetched automatically or type here" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="addon-description" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Description</label>
+                    <textarea id="addon-description" class="form-control" placeholder="Fetched automatically or type here" rows="3" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="addon-logo-url" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Logo / Icon URL</label>
+                    <input type="url" id="addon-logo-url" class="form-control" placeholder="Fetched automatically or type image URL" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; border-radius: 12px;">Add Addon</button>
+                </form>
+              </div>
+              
+              <!-- Addons List -->
+              <div class="admin-card">
+                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">Active Addons</h3>
+                <div class="admin-addons-list" id="admin-addons-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px;">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Auth Modal -->
+    <div class="auth-overlay" id="auth-modal" style="display: none;">
+      <div class="auth-card">
+        <button class="auth-close-btn" id="auth-close-btn"><i class="fa-solid fa-times"></i></button>
+        <div class="auth-brand">
+          <div class="auth-logo"><i class="fa-solid fa-play"></i></div>
+          <h2 class="auth-title" id="auth-modal-title">Welcome to MediaVault</h2>
+          <p class="auth-subtitle" id="auth-modal-subtitle">Sign in to sync your library, manage your private vault, and explore addons.</p>
+        </div>
+        <div class="auth-tabs" id="auth-tabs">
+          <button class="auth-tab active" data-mode="login">Sign In</button>
+          <button class="auth-tab" data-mode="register">Create Account</button>
+        </div>
+        <form id="auth-form">
+          <div class="auth-field" id="auth-username-field" style="display: none;">
+            <label class="auth-label" for="auth-username">Username</label>
+            <div class="auth-input-wrap">
+              <i class="fa-regular fa-user"></i>
+              <input type="text" id="auth-username" class="auth-input" placeholder="Your username">
+            </div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="auth-email">Email</label>
+            <div class="auth-input-wrap">
+              <i class="fa-regular fa-envelope"></i>
+              <input type="email" id="auth-email" class="auth-input" placeholder="you@example.com" required>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="auth-password">Password</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required>
+            </div>
+          </div>
+          <button type="submit" class="auth-submit" id="auth-submit-btn">Sign In</button>
+        </form>
+        <form id="auth-otp-form" style="display: none;">
+          <div class="auth-field">
+            <label class="auth-label" for="auth-otp-code">Verification Code</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-key"></i>
+              <input type="text" id="auth-otp-code" class="auth-input" placeholder="6-digit code" required>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Enter the code we sent to your email.</p>
+          </div>
+          <button type="submit" class="auth-submit" id="auth-otp-submit-btn">Verify & Login</button>
+        </form>
+        <div style="margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+          <button id="oauth-discord" class="auth-submit" style="background: #5865F2; box-shadow: 0 8px 25px rgba(88, 101, 242, 0.2);"><i class="fa-brands fa-discord"></i> Continue with Discord</button>
+        </div>
+        <div class="auth-msg" id="auth-msg"></div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal (Admin only) -->
+    <div class="auth-overlay" id="edit-user-modal" style="display: none;">
+      <div class="auth-card" style="max-width: 500px;">
+        <button class="auth-close-btn" id="edit-user-close-btn"><i class="fa-solid fa-times"></i></button>
+        <div class="auth-brand" style="margin-bottom: 20px;">
+          <h2 class="auth-title">Edit User Account</h2>
+          <p class="auth-subtitle" id="edit-user-email" style="color: var(--accent); font-weight: 600; margin-top: 5px;"></p>
+        </div>
+        <form id="edit-user-form">
+          <input type="hidden" id="edit-user-id">
+          
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label for="edit-user-role" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Role</label>
+            <select id="edit-user-role" class="form-control" style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label for="edit-user-max-devices" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Max Active Devices</label>
+            <input type="number" id="edit-user-max-devices" class="form-control" min="1" max="9999" required style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit-user-expiry" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Subscription Expires At</label>
+            <input type="datetime-local" id="edit-user-expiry" class="form-control" required style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+            <div class="quick-date-buttons" style="display: flex; gap: 10px; margin-top: 10px;">
+              <button type="button" class="btn-quick-date" data-days="30" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: var(--transition-smooth);">+30 Days</button>
+              <button type="button" class="btn-quick-date" data-days="365" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: var(--transition-smooth);">+1 Year</button>
+              <button type="button" class="btn-quick-date" data-days="0" style="flex: 1; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: var(--transition-smooth);">Expire Now</button>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; border-radius: 12px;">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
   <!-- Footer -->
   <footer>
     <div class="container">
-      <img src="amromotawa.svg" alt="Signature Logo" class="footer-logo" style="filter: brightness(0) invert(1);">
+      <img src="imgs/signature_w.png" alt="Signature Logo" class="footer-logo" style="filter: brightness(0) invert(1);">
       <p class="copyright">Built with passion by Amro Motawa. All rights reserved.</p>
     </div>
   </footer>
