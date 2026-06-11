@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const authModalSubtitle = document.getElementById('auth-modal-subtitle');
   const authSubmitBtn = document.getElementById('auth-submit-btn');
   const oauthDiscordBtn = document.getElementById('oauth-discord');
+  const oauthGoogleBtn = document.getElementById('oauth-google');
 
   let authMode = 'login'; // 'login' or 'register'
 
@@ -214,22 +215,50 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Handle Google OAuth Login
+  if (oauthGoogleBtn) {
+    oauthGoogleBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!supabaseClient) {
+        showToast('Supabase client not loaded.', 'error');
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + window.location.pathname
+          }
+        });
+        if (error) throw error;
+      } catch (err) {
+        showToast('Google login failed: ' + err.message, 'error');
+      }
+    });
+  }
+
 
 
   // Close Modal
-  authCloseBtn.addEventListener('click', closeAuthModal);
+  if (authCloseBtn) authCloseBtn.addEventListener('click', closeAuthModal);
   authModal.addEventListener('click', (e) => {
     if (e.target === authModal) closeAuthModal();
   });
+  const btnAuthBack = document.getElementById('btn-auth-back');
+  if (btnAuthBack) {
+    btnAuthBack.addEventListener('click', closeAuthModal);
+  }
 
   function openAuthModal() {
     authModal.style.display = 'flex';
+    document.body.classList.add('auth-modal-open');
     document.body.style.overflow = 'hidden';
     setAuthMode('login');
   }
 
   function closeAuthModal() {
     authModal.style.display = 'none';
+    document.body.classList.remove('auth-modal-open');
     document.body.style.overflow = '';
     clearAuthForm();
   }
@@ -530,31 +559,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Check current session on page load
-  async function checkInitialSession() {
-    if (!supabaseClient) {
-      updateNavbarUI();
-      initializeSections();
-      return;
-    }
-    try {
-      const { data: { session }, error } = await supabaseClient.auth.getSession();
-      if (error) throw error;
-      
+  // Initial sync before state change listener triggers
+  updateNavbarUI();
+  initializeSections();
+
+  // Set up auth state change listener to handle OAuth redirects and initial loads automatically
+  if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      console.log(`[Auth State Change] Event: ${event}, User: ${session?.user?.email}`);
       if (session && session.user) {
-        await syncAndInitialize(session.user);
+        // Prevent duplicate loads by checking user id
+        if (!currentUser || currentUser.id !== session.user.id) {
+          await syncAndInitialize(session.user);
+        }
       } else {
+        currentUser = null;
+        currentUserProfile = null;
         updateNavbarUI();
         initializeSections();
       }
-    } catch (e) {
-      console.warn("Session retrieval failed:", e.message);
-      updateNavbarUI();
-      initializeSections();
-    }
+    });
   }
 
-  checkInitialSession();
 
   // ==========================================
   // --- Addons Listing Logic ---
@@ -711,7 +737,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Attach event listeners
         tr.querySelector('.btn-edit-user').addEventListener('click', () => openEditUserModal(user));
-        tr.querySelector('.btn-ban-user').addEventListener('click', () => toggleBanUser(user.id, user.is_banned));
+        tr.querySelector('.btn-ban-user').addEventListener('click', function() {
+          const userId = this.getAttribute('data-id');
+          const isBanned = this.getAttribute('data-banned') === 'true';
+          toggleBanUser(userId, isBanned);
+        });
 
         usersTableBody.appendChild(tr);
       });
@@ -722,23 +752,191 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Toggle Ban Status
+  // Ban Modal DOM Elements
+  const banModal = document.getElementById('ban-modal');
+  const banCloseBtn = document.getElementById('ban-close-btn');
+  const banDevicesForm = document.getElementById('ban-devices-form');
+  const banUserEmailSpan = document.getElementById('ban-user-email');
+  const banDevicesList = document.getElementById('ban-devices-list');
+  const banReasonInput = document.getElementById('ban-reason');
+  const banTargetUserIdInput = document.getElementById('ban-target-user-id');
+  const btnBanSelectAll = document.getElementById('btn-ban-select-all');
+  const btnBanSelectNone = document.getElementById('btn-ban-select-none');
+
+  function closeBanModal() {
+    banModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  if (banCloseBtn) {
+    banCloseBtn.addEventListener('click', closeBanModal);
+  }
+  if (banModal) {
+    banModal.addEventListener('click', (e) => {
+      if (e.target === banModal) closeBanModal();
+    });
+  }
+
+  if (btnBanSelectAll) {
+    btnBanSelectAll.addEventListener('click', () => {
+      document.querySelectorAll('.ban-device-checkbox').forEach(cb => cb.checked = true);
+    });
+  }
+  if (btnBanSelectNone) {
+    btnBanSelectNone.addEventListener('click', () => {
+      document.querySelectorAll('.ban-device-checkbox').forEach(cb => cb.checked = false);
+    });
+  }
+
+  // Handle Ban Devices Form Submission
+  if (banDevicesForm) {
+    banDevicesForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!supabaseClient) return;
+
+      const userId = banTargetUserIdInput.value;
+      const reason = banReasonInput.value.trim() || 'Banned by Administrator';
+      
+      const checkedBoxes = document.querySelectorAll('.ban-device-checkbox:checked');
+      const hardwareIdsToBlacklist = Array.from(checkedBoxes).map(cb => cb.getAttribute('data-hwid'));
+
+      try {
+        // 1. Ban the account
+        const { error: banError } = await supabaseClient
+          .from('users_accounts')
+          .update({ is_banned: true })
+          .eq('id', userId);
+
+        if (banError) throw banError;
+
+        // 2. Blacklist selected hardware IDs
+        if (hardwareIdsToBlacklist.length > 0) {
+          const blacklistData = hardwareIdsToBlacklist.map(hwId => ({
+            hardware_id: hwId,
+            reason: reason,
+            is_banned: true,
+            banned_at: new Date().toISOString()
+          }));
+
+          const { error: blacklistError } = await supabaseClient
+            .from('hardware_blacklist')
+            .upsert(blacklistData);
+
+          if (blacklistError) throw blacklistError;
+
+          // 3. Delete binding/session for these devices
+          const { error: deleteBindingsError } = await supabaseClient
+            .from('user_devices')
+            .delete()
+            .in('hardware_id', hardwareIdsToBlacklist);
+
+          if (deleteBindingsError) throw deleteBindingsError;
+        }
+
+        showToast('Successfully banned user account and blacklisted selected devices.');
+        closeBanModal();
+        loadAdminUsers();
+      } catch (err) {
+        console.error('Failed to execute hardware/account ban:', err);
+        showToast('Ban failed: ' + err.message, 'error');
+      }
+    });
+  }
+
+  // Toggle Ban Status (Bans account & optionally blacklists hardware IDs)
   async function toggleBanUser(userId, currentBanStatus) {
     if (!supabaseClient) return;
-    const action = currentBanStatus ? 'unban' : 'ban';
-    
-    try {
-      const { error } = await supabaseClient
-        .from('users_accounts')
-        .update({ is_banned: !currentBanStatus })
-        .eq('id', userId);
 
-      if (error) throw error;
+    // Fetch user details first for email display
+    const targetUser = activeUsers.find(u => u.id === userId);
+    const userEmail = targetUser ? targetUser.email : 'Unknown User';
 
-      showToast(`Successfully completed ${action} action.`);
-      loadAdminUsers();
-    } catch (err) {
-      showToast(`Action failed: ${err.message}`, 'error');
+    if (currentBanStatus) {
+      // Unbanning: clean, straightforward
+      try {
+        // 1. Unban user
+        const { error: unbanError } = await supabaseClient
+          .from('users_accounts')
+          .update({ is_banned: false })
+          .eq('id', userId);
+
+        if (unbanError) throw unbanError;
+
+        // 2. Automatically remove their hardware IDs from blacklist so they can log in again
+        const { data: devices } = await supabaseClient
+          .from('user_devices')
+          .select('hardware_id')
+          .eq('user_id', userId);
+
+        if (devices && devices.length > 0) {
+          const hwIds = devices.map(d => d.hardware_id);
+          await supabaseClient
+            .from('hardware_blacklist')
+            .delete()
+            .in('hardware_id', hwIds);
+        }
+
+        showToast('Successfully unbanned user account and associated hardware.');
+        loadAdminUsers();
+      } catch (err) {
+        console.error('Failed to unban user:', err);
+        showToast('Unban failed: ' + err.message, 'error');
+      }
+    } else {
+      // Banning: Fetch registered devices to let admin select which to blacklist
+      try {
+        const { data: devices, error: deviceErr } = await supabaseClient
+          .from('user_devices')
+          .select('*')
+          .eq('user_id', userId);
+
+        if (deviceErr) throw deviceErr;
+
+        if (!devices || devices.length === 0) {
+          // No devices bound, ban account directly
+          const { error: directBanError } = await supabaseClient
+            .from('users_accounts')
+            .update({ is_banned: true })
+            .eq('id', userId);
+
+          if (directBanError) throw directBanError;
+
+          showToast('Successfully banned user account (no devices found).');
+          loadAdminUsers();
+        } else {
+          // Open selector modal
+          banTargetUserIdInput.value = userId;
+          banUserEmailSpan.innerText = userEmail;
+          banReasonInput.value = '';
+          banDevicesList.innerHTML = '';
+
+          devices.forEach(dev => {
+            const item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '12px';
+            item.style.padding = '10px';
+            item.style.background = 'rgba(255,255,255,0.02)';
+            item.style.border = '1px solid rgba(255,255,255,0.05)';
+            item.style.borderRadius = '8px';
+
+            item.innerHTML = `
+              <input type="checkbox" id="chk-dev-${dev.hardware_id}" class="ban-device-checkbox" data-hwid="${dev.hardware_id}" checked style="width: 18px; height: 18px; accent-color: #ef4444; cursor: pointer;">
+              <label for="chk-dev-${dev.hardware_id}" style="color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; flex: 1; text-align: left;">
+                ${dev.device_name || 'Unnamed Device'} <br>
+                <span style="color: var(--text-secondary); font-size: 11px; font-family: monospace; font-weight: 400;">HWID: ${dev.hardware_id}</span>
+              </label>
+            `;
+            banDevicesList.appendChild(item);
+          });
+
+          banModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      } catch (err) {
+        console.error('Failed to open device selector ban modal:', err);
+        showToast('Action failed: ' + err.message, 'error');
+      }
     }
   }
 
@@ -1014,6 +1212,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+  }
+
+  // --- CTA Slideshow Logic ---
+  const ctaImg = document.getElementById('cta-slideshow-img');
+  if (ctaImg) {
+    let currentImgIndex = 1;
+    const totalImages = 6;
+    
+    setInterval(() => {
+      // Fade out
+      ctaImg.style.opacity = 0;
+      
+      setTimeout(() => {
+        currentImgIndex = (currentImgIndex % totalImages) + 1;
+        ctaImg.src = `imgs/img${currentImgIndex}.png`;
+        // Fade in
+        ctaImg.style.opacity = 1;
+      }, 500); // Wait for fade out animation to complete
+    }, 4000); // Change image every 4 seconds
   }
 
 });

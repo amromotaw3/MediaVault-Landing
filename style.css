@@ -148,39 +148,50 @@ body {
   height: 100%;
   z-index: -1;
   overflow: hidden;
-  background: radial-gradient(circle at 20% 0%, #1a1a3a 0%, #0a0a14 85%, #050508 100%);
+  background: #050508;
 }
 
 .blob {
   position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  opacity: 0.1;
-  animation: float 20s infinite alternate;
+  width: 80%;
+  height: 80%;
+  pointer-events: none;
+  filter: blur(80px);
   will-change: transform;
 }
 
 .blob-1 { 
-  top: -10%; left: -10%; 
-  background: radial-gradient(circle, var(--accent) 0%, transparent 70%); 
+  top: -20%; left: -20%; 
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, transparent 70%); 
+  animation: splashOrbit 8s infinite ease-in-out;
 }
 .blob-2 { 
-  bottom: -10%; right: -10%; 
-  background: radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%); 
-  animation-delay: -5s; 
+  bottom: -20%; right: -20%; 
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.3) 0%, transparent 70%); 
+  animation: splashOrbit 12s infinite ease-in-out reverse;
 }
 .blob-3 { 
-  top: 40%; left: 30%; 
-  width: 400px; height: 400px; 
-  background: radial-gradient(circle, #4f46e5 0%, transparent 70%); 
-  opacity: 0.08; 
-  animation-duration: 25s; 
+  top: 20%; right: -30%; 
+  width: 70%; height: 70%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%); 
+  filter: blur(90px);
+  animation: splashOrbit 10s infinite linear;
 }
 
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(100px, 50px) scale(1.1); }
+@keyframes splashOrbit {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(15%, 10%) scale(1.1) rotate(5deg);
+  }
+  50% {
+    transform: translate(-10%, 20%) scale(0.9) rotate(-5deg);
+  }
+  75% {
+    transform: translate(-15%, -5%) scale(1.05) rotate(3deg);
+  }
 }
 
 /* ═══ Typography & Shared ═══ */
@@ -201,75 +212,61 @@ h1, h2, h3 {
 
 /* ═══ Hero Section ═══ */
 .hero {
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 0;
+  padding: 160px 0 80px 0;
   position: relative;
   overflow: hidden; /* Prevent horizontal overflow from enlarged mockup */
 }
 
 .hero-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 24px;
-  height: 100%;
+  gap: 40px;
+  width: 100%;
 }
 
 .hero-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -45%);
-  z-index: 99999; /* force above any overlay */
+  flex: 1;
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  width: 100%;
+  align-items: flex-start;
+  text-align: left;
   max-width: 720px;
-  padding: 0 20px;
-}
-
-/* New hero card style: subtle glass panel to highlight content */
-.hero-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.06));
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 36px 40px;
-  border-radius: 20px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.65);
-  z-index: 100000; /* ensure hero card is topmost */
+  padding: 0;
 }
 
 .hero-title {
-  font-size: 56px;
-  line-height: 1.02;
-  margin: 8px 0 18px;
+  font-size: 84px;
+  line-height: 0.95;
+  margin-bottom: 24px;
+  font-weight: 900;
 }
 
 .hero-subtitle {
-  font-size: 17px;
+  font-size: 20px;
   color: var(--text-secondary);
-  max-width: 620px;
-  margin-bottom: 24px;
+  max-width: 550px;
+  margin-bottom: 48px;
+  font-weight: 400;
+  text-align: left;
 }
 
-.hero-visual { display: none !important; }
-
-.hero-actions .btn { padding: 12px 28px; border-radius: 12px; }
-
-/* New single-profile decorative element */
-.hero-profile-container { display: none !important; }
+.hero-visual {
+  flex: 1.2;
+  position: relative;
+  z-index: 10;
+  display: block;
+}
 
 .hero-actions {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .app-badge {
@@ -781,7 +778,7 @@ footer {
   background: rgba(7, 7, 10, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  z-index: 10000;
+  z-index: 9999999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1690,3 +1687,65 @@ footer {
   object-fit: cover;
   display: block;
 }
+
+/* Hide other content only when the auth modal specifically is open */
+body.auth-modal-open .main-nav,
+body.auth-modal-open .hero,
+body.auth-modal-open .features,
+body.auth-modal-open .addons-section,
+body.auth-modal-open .admin-panel-section {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.main-nav, .hero, .features, .addons-section, .admin-panel-section {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#auth-modal {
+  transition: background-color 0.5s ease, backdrop-filter 0.5s ease;
+}
+
+body.auth-modal-open #auth-modal {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.auth-modal-open #auth-modal .auth-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 10px !important;
+}
+
+body.auth-modal-open #auth-modal #auth-close-btn {
+  display: none !important;
+}
+
+#btn-auth-back:hover {
+  background: #ffffff !important;
+  color: #050508 !important;
+  border-color: #ffffff !important;
+}
+
+/* Responsive features layout for wide CTA card slideshow */
+.feature-cta-span {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+@media (min-width: 1200px) {
+  .features-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+  .feature-cta-span {
+    grid-column: span 3;
+    flex-direction: row !important;
+  }
+}
+
+
+
