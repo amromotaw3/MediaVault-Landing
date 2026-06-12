@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaVault — Authentication Successful</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-base: #0b0b0e;
+      --bg-surface: #15151c;
+      --accent: #a855f7;
+      --accent-glow: rgba(168, 85, 247, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-primary: #ffffff;
+      --text-secondary: #9ca3af;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ═══ Background Orbit Orbs ═══ */
+    .background-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      filter: blur(100px);
+      will-change: transform;
+    }
+
+    .blob-1 {
+      top: -20%;
+      left: -20%;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+      animation: splashOrbit 12s infinite ease-in-out;
+    }
+
+    .blob-2 {
+      bottom: -20%;
+      right: -20%;
+      background: radial-gradient(circle, rgba(79, 70, 229, 0.2) 0%, transparent 70%);
+      animation: splashOrbit 16s infinite ease-in-out reverse;
+    }
+
+    @keyframes splashOrbit {
+      0%, 100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+      }
+      25% {
+        transform: translate(10%, 8%) scale(1.05) rotate(5deg);
+      }
+      50% {
+        transform: translate(-5%, 15%) scale(0.95) rotate(-5deg);
+      }
+      75% {
+        transform: translate(-10%, -3%) scale(1.02) rotate(3deg);
+      }
+    }
+
+    /* ═══ Glass Card Container ═══ */
+    .card-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 460px;
+      padding: 40px 30px;
+      background: var(--bg-surface);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(168, 85, 247, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cardSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ═══ Icon & Success Animations ═══ */
+    .success-icon-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(168, 85, 247, 0.1);
+      border: 2px solid rgba(168, 85, 247, 0.3);
+      animation: ringPulse 2s infinite ease-out;
+    }
+
+    .success-icon {
+      font-size: 36px;
+      color: #a855f7;
+      text-shadow: 0 0 15px var(--accent-glow);
+      z-index: 2;
+      animation: checkPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    }
+
+    @keyframes ringPulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    @keyframes checkPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-15deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    /* ═══ Typography ═══ */
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 0%, #d8b4fe 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+
+    /* ═══ Sync status ═══ */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--text-primary);
+      margin-bottom: 25px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #a855f7;
+      box-shadow: 0 0 10px #a855f7;
+      animation: dotPulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    /* ═══ Fallback Action Button ═══ */
+    .action-btn {
+      width: 100%;
+      padding: 14px;
+      background: #ffffff;
+      border: none;
+      color: #0b0b0e;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(255, 255, 255, 0.25);
+      background: #f1f5f9;
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Mesh Orbs -->
+  <div class="background-canvas">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <!-- Content Card -->
+  <div class="card-container">
+    <div class="success-icon-wrapper">
+      <div class="success-ring"></div>
+      <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+    </div>
+    
+    <h1>Login Successful!</h1>
+    
+    <p>
+      We have securely linked your account. You can now close this browser window and return to the MediaVault application to explore your updated dashboard.
+    </p>
+
+    <!-- Connection Status Badge -->
+    <div class="status-badge" id="status-container">
+      <div class="status-dot"></div>
+      <span id="status-text">Linking session with MediaVault...</span>
+    </div>
+
+    <!-- Manual Deep Link Fallback Button -->
+    <a href="#" id="manual-link" class="action-btn">
+      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      Open MediaVault App
+    </a>
+
+    <div class="footer-note">
+      Didn't redirect? Click the button above to launch the application.
+    </div>
+  </div>
+
+  <!-- Hidden iframe for localhost communication -->
+  <iframe id="hidden-iframe" style="display:none; width:0; height:0; border:none;"></iframe>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash;
+      const search = window.location.search;
+      const statusText = document.getElementById('status-text');
+      const manualLink = document.getElementById('manual-link');
+      const hiddenIframe = document.getElementById('hidden-iframe');
+
+      // Parse error parameters if any
+      const urlParams = new URLSearchParams(search || hash.replace('#', '?'));
+      const errorCode = urlParams.get('error');
+      const errorDesc = urlParams.get('error_description');
+
+      if (errorCode || errorDesc) {
+        const errorMsg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
+        statusText.innerText = "Error: " + errorMsg;
+        document.querySelector('.status-dot').style.background = '#ef4444';
+        document.querySelector('.status-dot').style.boxShadow = '0 0 10px #ef4444';
+        
+        // Show error styling on header
+        const header = document.querySelector('h1');
+        header.innerText = "Authentication Failed";
+        header.style.background = "linear-gradient(135deg, #ff8a8a 0%, #f87171 100%)";
+        header.style.webkitBackgroundClip = "text";
+        header.style.webkitTextFillColor = "transparent";
+
+        // Change sparkle icon to warning
+        const iconContainer = document.querySelector('.success-icon');
+        iconContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
+        return;
+      }
+
+      if (!hash) {
+        statusText.innerText = "No session hash found. Try logging in again.";
+        document.querySelector('.status-dot').style.background = '#ef4444';
+        document.querySelector('.status-dot').style.boxShadow = '0 0 10px #ef4444';
+        return;
+      }
+
+      // Format Deep Links
+      const deepLinkCallback = 'mediavault://callback' + hash;
+      const deepLinkAuth = 'mediavault://auth' + hash;
+
+      // Update manual launch button link
+      manualLink.href = deepLinkCallback;
+
+      // 1. Attempt Iframe delivery to Local Electron API server (usually localhost:3000)
+      const localServerUrl = 'http://localhost:3000/' + hash;
+      hiddenIframe.src = localServerUrl;
+
+      // 2. Fallback to deep link protocol after 800ms
+      setTimeout(() => {
+        statusText.innerText = "Session linked. Redirecting via deep link...";
+        
+        // Quietly try to launch deep link
+        const linkElem = document.createElement('a');
+        linkElem.href = deepLinkCallback;
+        linkElem.style.display = 'none';
+        document.body.appendChild(linkElem);
+        linkElem.click();
+        document.body.removeChild(linkElem);
+
+        // Update status UI
+        setTimeout(() => {
+          statusText.innerText = "Securely connected. Ready to close.";
+          document.querySelector('.status-dot').style.background = '#10b981';
+          document.querySelector('.status-dot').style.boxShadow = '0 0 10px #10b981';
+        }, 1000);
+      }, 1000);
+
+      // Support manual fallback deep links (both callback and auth formats just in case)
+      manualLink.addEventListener('click', (e) => {
+        // Trigger secondary backup protocol just in case primary fails
+        setTimeout(() => {
+          window.location.href = deepLinkAuth;
+        }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>
