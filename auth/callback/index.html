@@ -312,6 +312,7 @@
       const urlParams = new URLSearchParams(search || hash.replace('#', '?'));
       const errorCode = urlParams.get('error');
       const errorDesc = urlParams.get('error_description');
+      const source = urlParams.get('source');
 
       if (errorCode || errorDesc) {
         const errorMsg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
@@ -336,6 +337,22 @@
         statusText.innerText = "No session hash found. Try logging in again.";
         document.querySelector('.status-dot').style.background = '#ef4444';
         document.querySelector('.status-dot').style.boxShadow = '0 0 10px #ef4444';
+        return;
+      }
+
+      // Check if source is web (landing page login) or app (Electron app login)
+      if (source === 'web') {
+        statusText.innerText = "Authenticated! Redirecting to dashboard...";
+        document.querySelector('.status-dot').style.background = '#10b981';
+        document.querySelector('.status-dot').style.boxShadow = '0 0 10px #10b981';
+        
+        // Hide manual launch button since we are redirecting within the browser
+        if (manualLink) manualLink.style.display = 'none';
+        
+        // Redirect back to landing page index with the hash for Supabase JS client to parse it
+        setTimeout(() => {
+          window.location.href = window.location.origin + '/' + hash;
+        }, 1500);
         return;
       }
 

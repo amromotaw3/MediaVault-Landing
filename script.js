@@ -16,24 +16,28 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedAdminTab = 'users-tab';
   let activeUsers = [];
 
-  // --- Feature Card Animation on Scroll ---
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
+  // --- High-Performance Scroll-driven Animation for Features ---
+  const featureCards = document.querySelectorAll('.feature-card');
+  
+  function handleScrollAnimation() {
+    const triggerBottom = window.innerHeight * 0.95;
+    featureCards.forEach(card => {
+      const cardTop = card.getBoundingClientRect().top;
+      if (cardTop < triggerBottom) {
+        // Calculate entrance ratio (completes animation within 250px from entering viewport)
+        const distance = triggerBottom - cardTop;
+        const range = 250; 
+        const ratio = Math.min(Math.max(distance / range, 0), 1);
+        card.style.setProperty('--scroll-ratio', ratio);
+      } else {
+        card.style.setProperty('--scroll-ratio', '0');
       }
     });
-  }, observerOptions);
+  }
 
-  document.querySelectorAll('.feature-card').forEach(card => {
-    observer.observe(card);
-  });
+  window.addEventListener('scroll', handleScrollAnimation);
+  // Initial check on load
+  setTimeout(handleScrollAnimation, 100);
 
   // --- Smart Latest Release Fetcher ---
   const repoOwner = 'amromotaw3';
@@ -205,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: window.location.origin + window.location.pathname
+            redirectTo: `${window.location.origin}/auth/callback?source=web`
           }
         });
         if (error) throw error;
@@ -227,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin + window.location.pathname
+            redirectTo: `${window.location.origin}/auth/callback?source=web`
           }
         });
         if (error) throw error;
@@ -442,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentUser) {
       const email = currentUser.email;
-      const isAdmin = currentUserProfile?.role === 'admin' || email === 'gamer.motawa@gmail.com' || email === 'amro.motawa@icloud.com';
+      const isAdmin = currentUserProfile?.role === 'admin';
       
       const userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.user_metadata?.username || email.split('@')[0];
       const avatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=8b5cf6&color=fff`;
@@ -538,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initializeSections() {
     if (currentUser) {
       const email = currentUser.email;
-      const isAdmin = currentUserProfile?.role === 'admin' || email === 'gamer.motawa@gmail.com' || email === 'amro.motawa@icloud.com';
+      const isAdmin = currentUserProfile?.role === 'admin';
       
       const hash = window.location.hash;
       if (hash === '#addons-section') {
@@ -652,9 +656,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminTabContents = document.querySelectorAll('.admin-tab-content');
 
   // Sidebar Tab Switching
-  adminSidebar.querySelectorAll('.admin-nav-btn').forEach(btn => {
+  adminSidebar.querySelectorAll('.admin-nav-btn[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
-      adminSidebar.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+      adminSidebar.querySelectorAll('.admin-nav-btn[data-tab]').forEach(b => b.classList.remove('active'));
       adminTabContents.forEach(c => c.classList.remove('active'));
 
       btn.classList.add('active');
@@ -666,6 +670,29 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (tabId === 'addons-tab') loadAdminAddonsTab();
     });
   });
+
+  // Copy Callback Link Button
+  const btnCopyCallback = document.getElementById('btn-copy-callback');
+  if (btnCopyCallback) {
+    btnCopyCallback.addEventListener('click', () => {
+      const callbackUrl = 'https://mediavault-five.vercel.app/auth/callback';
+      navigator.clipboard.writeText(callbackUrl).then(() => {
+        showToast('Callback URL copied to clipboard!');
+        
+        // Premium visual feedback
+        btnCopyCallback.classList.add('copied');
+        btnCopyCallback.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        
+        setTimeout(() => {
+          btnCopyCallback.classList.remove('copied');
+          btnCopyCallback.innerHTML = '<i class="fa-solid fa-copy"></i> Copy Callback Link';
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy callback URL:', err);
+        showToast('Failed to copy link', 'error');
+      });
+    });
+  }
 
   function loadAdminPanel() {
     if (selectedAdminTab === 'users-tab') {
@@ -1214,23 +1241,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- CTA Slideshow Logic ---
-  const ctaImg = document.getElementById('cta-slideshow-img');
-  if (ctaImg) {
-    let currentImgIndex = 1;
-    const totalImages = 6;
-    
-    setInterval(() => {
-      // Fade out
-      ctaImg.style.opacity = 0;
-      
-      setTimeout(() => {
-        currentImgIndex = (currentImgIndex % totalImages) + 1;
-        ctaImg.src = `imgs/img${currentImgIndex}.png`;
-        // Fade in
-        ctaImg.style.opacity = 1;
-      }, 500); // Wait for fade out animation to complete
-    }, 4000); // Change image every 4 seconds
-  }
+  // --- CTA Slideshow Logic removed ---
 
 });

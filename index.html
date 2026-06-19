@@ -173,14 +173,11 @@
         </div>
 
         <!-- CTA Card (Spans empty columns) -->
-        <div class="feature-card feature-cta-span" style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08)); border: 1px solid var(--accent); display: flex; flex-direction: row; gap: 40px; align-items: center; justify-content: space-between; overflow: hidden; padding: 45px;">
-          <div class="cta-content" style="flex: 1.2; min-width: 320px;">
+        <div class="feature-card feature-cta-span" style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08)); border: 1px solid var(--accent); display: flex; flex-direction: column; gap: 20px; align-items: center; text-align: center; overflow: hidden; padding: 45px;">
+          <div class="cta-content" style="max-width: 800px; margin: 0 auto;">
             <h3 class="feature-title" style="font-size: 32px; margin-bottom: 15px; background: linear-gradient(135deg, #fff 0%, #a0a0b8 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.02em;">Ready to Dive In? Your Premium Media Era Starts Now.</h3>
-            <p class="feature-text" style="font-size: 15px; color: var(--text-secondary); margin-bottom: 25px; line-height: 1.7;">Experience MediaVault, the most refined local and streaming media client ever built. Take control of your private content, automate your library, sync your progress, and download torrents or direct links with lightning speed. Built with a fully open-source and strictly offline-first architecture, it ensures your database remains fast and secure. Customize your experience, connect community add-ons, and build a truly personal cinema hub that lives entirely on your device, adapting to your preferences.</p>
+            <p class="feature-text" style="font-size: 15px; color: var(--text-secondary); margin-bottom: 25px; line-height: 1.7;">Experience MediaVault, the most refined local and streaming media client ever built. Take control of your private content, automate your library, sync your progress, and download torrents or direct links with lightning speed. Built with a strictly offline-first architecture, it ensures your database remains fast and secure. Customize your experience, connect community add-ons, and build a truly personal cinema hub that lives entirely on your device, adapting to your preferences.</p>
             <a href="#hero" class="btn btn-primary" style="display: inline-flex; justify-content: center; width: auto; padding: 14px 32px; border-radius: 12px;">Get Started Now</a>
-          </div>
-          <div class="cta-image-wrapper" style="flex: 1; display: flex; justify-content: center; align-items: center; height: 320px; min-width: 380px; border-radius: 16px; overflow: hidden; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
-            <img src="imgs/img1.png" id="cta-slideshow-img" alt="MediaVault Interface Preview" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease-in-out;">
           </div>
         </div>
 
@@ -213,6 +210,7 @@
         <div class="admin-sidebar">
           <button class="admin-nav-btn active" data-tab="users-tab"><i class="fa-solid fa-users"></i> Users & Subscriptions</button>
           <button class="admin-nav-btn" data-tab="addons-tab"><i class="fa-solid fa-puzzle-piece"></i> Manage Addons</button>
+          <button class="admin-nav-btn admin-copy-btn" id="btn-copy-callback"><i class="fa-solid fa-copy"></i> Copy Callback Link</button>
         </div>
         
         <div class="admin-content">
