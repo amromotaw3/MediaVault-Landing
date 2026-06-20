@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?source=web`
+            redirectTo: 'https://mediavault-five.vercel.app/auth/callback?source=web'
           }
         });
         if (error) throw error;
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?source=web`
+            redirectTo: 'https://mediavault-five.vercel.app/auth/callback?source=web'
           }
         });
         if (error) throw error;
