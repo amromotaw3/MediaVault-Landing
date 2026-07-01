@@ -5,7 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let supabaseClient = null;
   try {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: "supabase.auth.token"
+      }
+    });
   } catch (e) {
     console.error("Failed to initialize Supabase client:", e);
   }
@@ -563,9 +570,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Initial sync before state change listener triggers
-  updateNavbarUI();
-  initializeSections();
+  // Get initial session and update navbar state before setting up event listeners
+  if (supabaseClient) {
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      if (session && session.user) {
+        currentUser = session.user;
+        // Fetch profiles or other syncing logic can trigger synchronously here
+        syncAndInitialize(session.user).then(() => {
+          updateNavbarUI();
+          initializeSections();
+        });
+      } else {
+        updateNavbarUI();
+        initializeSections();
+      }
+    }).catch(err => {
+      console.error('Failed to get initial session:', err);
+      updateNavbarUI();
+      initializeSections();
+    });
+  } else {
+    updateNavbarUI();
+    initializeSections();
+  }
 
   // Set up auth state change listener to handle OAuth redirects and initial loads automatically
   if (supabaseClient) {
@@ -989,9 +1016,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set Expiry input datetime
     if (user.subscription_expires_at) {
       const date = new Date(user.subscription_expires_at);
-      // Format to yyyy-MM-ddThh:mm
-      const formattedDate = date.toISOString().slice(0, 16);
-      editUserExpiry.value = formattedDate;
+      // Format to yyyy-MM-ddThh:mm in local time
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(date.getTime() - tzOffset)).toISOString().slice(0, 16);
+      editUserExpiry.value = localISOTime;
     } else {
       editUserExpiry.value = '';
     }
